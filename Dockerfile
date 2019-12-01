@@ -8,6 +8,9 @@ MAINTAINER "rancococ" <rancococ@qq.com>
 ARG WRAPPER_TOMCAT_VERSION=3.5.41.1
 ARG WRAPPER_TOMCAT_URL=https://github.com/rancococ/wrapper/archive/tomcat-${WRAPPER_TOMCAT_VERSION}.tar.gz
 
+# copy script
+COPY docker-preprocess.sh /
+
 # install wrapper-tomcat
 RUN mkdir -p /data/app && \
     tempuuid=$(cat /proc/sys/kernel/random/uuid) && mkdir -p /tmp/${tempuuid} && \
@@ -30,6 +33,8 @@ RUN mkdir -p /data/app && \
     chmod 777 /data/app/logs && \
     chmod 777 /data/app/temp && \
     chown -R app:app /data/app && \
+    chown -R app:app /docker-preprocess.sh && \
+    chmod +x /docker-preprocess.sh && \
     /data/app/bin/wrapper-create-linkfile.sh
 
 # set work home
