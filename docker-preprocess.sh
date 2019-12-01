@@ -32,7 +32,7 @@ envsubst < /data/app/conf/wrapper-environment.tmpl > /data/app/conf/wrapper-envi
 
 # generate wrapper-additional.conf by wrapper-additional.tmpl
 echo generate wrapper-additional.conf
-/data/app/bin/gotmpl --template=f:/data/app/conf/wrapper-additional.tmpl \
+/data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/wrapper-additional.tmpl \
                      --jsondata=f:/data/app/conf/wrapper-environment.json \
                      --outfile=/data/app/conf/wrapper-additional.conf
 
