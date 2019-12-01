@@ -3,7 +3,6 @@
 set -e
 
 # export environment variable
-echo export environment variable
 export WRAPPERT_JMX_EXPORTER_ENABLED=${WRAPPERT_JMX_EXPORTER_ENABLED:="true"}
 export WRAPPERT_JMX_EXPORTER_PORT=${WRAPPERT_JMX_EXPORTER_PORT:="9404"}
 export WRAPPERT_HEAP_DUMP_ENABLED=${WRAPPERT_HEAP_DUMP_ENABLED:="false"}
@@ -26,14 +25,15 @@ export WRAPPERT_HTTP_LISTEN_PORT=${WRAPPERT_HTTP_LISTEN_PORT:="8080"}
 export WRAPPERT_SHUTDOWN_PORT=${WRAPPERT_SHUTDOWN_PORT:="-1"}
 export WRAPPERT_OTHER_PARAMETERS=${WRAPPERT_OTHER_PARAMETERS:=""}
 
-# generate wrapper-environment.json by wrapper-environment.tmpl
-echo generate wrapper-environment.json
+# generate wrapper-environment.json
 envsubst < /data/app/conf/wrapper-environment.tmpl > /data/app/conf/wrapper-environment.json
 
-# generate wrapper-additional.conf by wrapper-additional.tmpl
-echo generate wrapper-additional.conf
+# generate wrapper-additional.conf
 /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/wrapper-additional.tmpl \
-                     --jsondata=f:/data/app/conf/wrapper-environment.json \
-                     --outfile=/data/app/conf/wrapper-additional.conf
+                                  --jsondata=f:/data/app/conf/wrapper-environment.json \
+                                  --outfile=/data/app/conf/wrapper-additional.conf
 
-echo done.
+# generate server.xml
+/data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/server.tmpl \
+                                  --jsondata=f:/data/app/conf/wrapper-environment.json \
+                                  --outfile=/data/app/conf/server.xml
