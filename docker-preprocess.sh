@@ -51,7 +51,7 @@ export TOMCAT_CORS_FILTER_ASYNC_SUPPORTED=${TOMCAT_CORS_FILTER_ASYNC_SUPPORTED:=
 # generate wrapper-environment.json
 if [ ! -f "/data/app/conf/wrapper-environment.json" ]; then
     echo "file [/data/app/conf/wrapper-environment.json] does not exist, generate /data/app/conf/wrapper-environment.json."
-    gosu app envsubst < /data/app/conf/wrapper-environment.tmpl > /data/app/conf/wrapper-environment.json
+    gosu app bash -c 'envsubst < /data/app/conf/wrapper-environment.tmpl > /data/app/conf/wrapper-environment.json'
 else
     if [ ! -r "/data/app/conf/wrapper-environment.json" ]; then
         echo "file [/data/app/conf/wrapper-environment.json] already exists, but it is not readable."
@@ -64,9 +64,9 @@ fi
 # generate wrapper-property.conf
 if [ ! -f "/data/app/conf/wrapper-property.conf" ]; then
     echo "file [/data/app/conf/wrapper-property.conf] does not exist, generate /data/app/conf/wrapper-property.conf."
-    gosu app /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/wrapper-property.tmpl \
-                                               --jsondata=f:/data/app/conf/wrapper-environment.json \
-                                               --outfile=/data/app/conf/wrapper-property.conf
+    gosu app bash -c '/data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/wrapper-property.tmpl \
+                                                        --jsondata=f:/data/app/conf/wrapper-environment.json \
+                                                        --outfile=/data/app/conf/wrapper-property.conf'
 else
     if [ ! -r "/data/app/conf/wrapper-property.conf" ]; then
         echo "file [/data/app/conf/wrapper-property.conf] already exists, but it is not readable."
@@ -79,9 +79,9 @@ fi
 # generate wrapper-additional.conf
 if [ ! -f "/data/app/conf/wrapper-additional.conf" ]; then
     echo "file [/data/app/conf/wrapper-additional.conf] does not exist, generate /data/app/conf/wrapper-additional.conf."
-    gosu app /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/wrapper-additional.tmpl \
-                                               --jsondata=f:/data/app/conf/wrapper-environment.json \
-                                               --outfile=/data/app/conf/wrapper-additional.conf
+    gosu app bash -c '/data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/wrapper-additional.tmpl \
+                                                        --jsondata=f:/data/app/conf/wrapper-environment.json \
+                                                        --outfile=/data/app/conf/wrapper-additional.conf'
 else
     if [ ! -r "/data/app/conf/wrapper-additional.conf" ]; then
         echo "file [/data/app/conf/wrapper-additional.conf] already exists, but it is not readable."
@@ -94,9 +94,9 @@ fi
 # generate server.xml
 if [ ! -f "/data/app/conf/server.xml" ]; then
     echo "file [/data/app/conf/server.xml] does not exist, generate /data/app/conf/server.xml."
-    gosu app /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/server.tmpl \
-                                               --jsondata=f:/data/app/conf/wrapper-environment.json \
-                                               --outfile=/data/app/conf/server.xml
+    gosu app bash -c '/data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/server.tmpl \
+                                                        --jsondata=f:/data/app/conf/wrapper-environment.json \
+                                                        --outfile=/data/app/conf/server.xml'
 else
     if [ ! -r "/data/app/conf/server.xml" ]; then
         echo "file [/data/app/conf/server.xml] already exists, but it is not readable."
@@ -109,9 +109,9 @@ fi
 # generate web.xml
 if [ ! -f "/data/app/conf/web.xml" ]; then
     echo "file [/data/app/conf/web.xml] does not exist, generate /data/app/conf/web.xml."
-    gosu app /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/web.tmpl \
-                                               --jsondata=f:/data/app/conf/wrapper-environment.json \
-                                               --outfile=/data/app/conf/web.xml
+    gosu app bash -c '/data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/web.tmpl \
+                                                        --jsondata=f:/data/app/conf/wrapper-environment.json \
+                                                        --outfile=/data/app/conf/web.xml'
 else
     if [ ! -r "/data/app/conf/web.xml" ]; then
         echo "file [/data/app/conf/web.xml] already exists, but it is not readable."
