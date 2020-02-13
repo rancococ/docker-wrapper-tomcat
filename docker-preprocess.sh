@@ -2,7 +2,15 @@
 
 set -e
 
+echo "preprocess start."
+
 # export environment variable
+# prop
+export PROP_APP_NAME=${PROP_APP_NAME:="myapp"}
+export PROP_APP_LONG_NAME=${PROP_APP_LONG_NAME:="myapp"}
+export PROP_APP_DESC=${PROP_APP_DESC:="myapp"}
+export PROP_RUN_AS_USER=${PROP_RUN_AS_USER:=""}
+# jvm
 export JVM_JMX_EXPORTER_ENABLED=${JVM_JMX_EXPORTER_ENABLED:="true"}
 export JVM_JMX_EXPORTER_PORT=${JVM_JMX_EXPORTER_PORT:="9404"}
 export JVM_HEAP_DUMP_ENABLED=${JVM_HEAP_DUMP_ENABLED:="false"}
@@ -25,16 +33,92 @@ export JVM_JMX_REMOTE_RMI_SERVER_PORT=${JVM_JMX_REMOTE_RMI_SERVER_PORT:="10002"}
 export JVM_HTTP_LISTEN_PORT=${JVM_HTTP_LISTEN_PORT:="8080"}
 export JVM_SHUTDOWN_PORT=${JVM_SHUTDOWN_PORT:="-1"}
 export JVM_OTHER_PARAMETERS=${JVM_OTHER_PARAMETERS:=""}
+# tomcat
+export TOMCAT_SET_CHARACTER_ENCODING_FILTER_ENABLED=${TOMCAT_SET_CHARACTER_ENCODING_FILTER_ENABLED:="true"}
+export TOMCAT_SET_CHARACTER_ENCODING_FILTER_ENCODING=${TOMCAT_SET_CHARACTER_ENCODING_FILTER_ENCODING:="UTF-8"}
+export TOMCAT_SET_CHARACTER_ENCODING_FILTER_ASYNC_SUPPORTED=${TOMCAT_SET_CHARACTER_ENCODING_FILTER_ASYNC_SUPPORTED:="true"}
+export TOMCAT_FAILED_REQUEST_FILTER_ENABLED=${TOMCAT_FAILED_REQUEST_FILTER_ENABLED:="true"}
+export TOMCAT_FAILED_REQUEST_FILTER_ASYNC_SUPPORTED=${TOMCAT_FAILED_REQUEST_FILTER_ASYNC_SUPPORTED:="true"}
+export TOMCAT_CORS_FILTER_ENABLED=${TOMCAT_CORS_FILTER_ENABLED:="false"}
+export TOMCAT_CORS_FILTER_ALLOWED_ORIGINS=${TOMCAT_CORS_FILTER_ALLOWED_ORIGINS:="*"}
+export TOMCAT_CORS_FILTER_ALLOWED_METHODS=${TOMCAT_CORS_FILTER_ALLOWED_METHODS:="GET,POST,HEAD,OPTIONS,PUT"}
+export TOMCAT_CORS_FILTER_ALLOWED_HEADERS=${TOMCAT_CORS_FILTER_ALLOWED_HEADERS:="Content-Type,X-Requested-With,accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers"}
+export TOMCAT_CORS_FILTER_EXPOSED_HEADERS=${TOMCAT_CORS_FILTER_EXPOSED_HEADERS:="Access-Control-Allow-Origin,Access-Control-Allow-Credentials"}
+export TOMCAT_CORS_FILTER_SUPPORT_CREDENTIALS=${TOMCAT_CORS_FILTER_SUPPORT_CREDENTIALS:="false"}
+export TOMCAT_CORS_FILTER_PREFLIGHT_MAXAGE=${TOMCAT_CORS_FILTER_PREFLIGHT_MAXAGE:="10"}
+export TOMCAT_CORS_FILTER_ASYNC_SUPPORTED=${TOMCAT_CORS_FILTER_ASYNC_SUPPORTED:="true"}
 
 # generate wrapper-environment.json
-envsubst < /data/app/conf/wrapper-environment.tmpl > /data/app/conf/wrapper-environment.json
+if [ ! -f "/data/app/conf/wrapper-environment.json" ]; then
+    echo "file [/data/app/conf/wrapper-environment.json] does not exist, generate /data/app/conf/wrapper-environment.json."
+    envsubst < /data/app/conf/wrapper-environment.tmpl > /data/app/conf/wrapper-environment.json
+else
+    if [ ! -r "/data/app/conf/wrapper-environment.json" ]; then
+        echo "file [/data/app/conf/wrapper-environment.json] already exists, but it is not readable."
+        exit 1
+    else
+        echo "file [/data/app/conf/wrapper-environment.json] already exists and is readable."
+    fi
+fi
+
+# generate wrapper-property.conf
+if [ ! -f "/data/app/conf/wrapper-property.conf" ]; then
+    echo "file [/data/app/conf/wrapper-property.conf] does not exist, generate /data/app/conf/wrapper-property.conf."
+    /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/wrapper-property.tmpl \
+                                      --jsondata=f:/data/app/conf/wrapper-environment.json \
+                                      --outfile=/data/app/conf/wrapper-property.conf
+else
+    if [ ! -r "/data/app/conf/wrapper-property.conf" ]; then
+        echo "file [/data/app/conf/wrapper-property.conf] already exists, but it is not readable."
+        exit 1
+    else
+        echo "file [/data/app/conf/wrapper-property.conf] already exists and is readable."
+    fi
+fi
 
 # generate wrapper-additional.conf
-/data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/wrapper-additional.tmpl \
-                                  --jsondata=f:/data/app/conf/wrapper-environment.json \
-                                  --outfile=/data/app/conf/wrapper-additional.conf
+if [ ! -f "/data/app/conf/wrapper-additional.conf" ]; then
+    echo "file [/data/app/conf/wrapper-additional.conf] does not exist, generate /data/app/conf/wrapper-additional.conf."
+    /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/wrapper-additional.tmpl \
+                                      --jsondata=f:/data/app/conf/wrapper-environment.json \
+                                      --outfile=/data/app/conf/wrapper-additional.conf
+else
+    if [ ! -r "/data/app/conf/wrapper-additional.conf" ]; then
+        echo "file [/data/app/conf/wrapper-additional.conf] already exists, but it is not readable."
+        exit 1
+    else
+        echo "file [/data/app/conf/wrapper-additional.conf] already exists and is readable."
+    fi
+fi
 
 # generate server.xml
-/data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/server.tmpl \
-                                  --jsondata=f:/data/app/conf/wrapper-environment.json \
-                                  --outfile=/data/app/conf/server.xml
+if [ ! -f "/data/app/conf/server.xml" ]; then
+    echo "file [/data/app/conf/server.xml] does not exist, generate /data/app/conf/server.xml."
+    /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/server.tmpl \
+                                      --jsondata=f:/data/app/conf/wrapper-environment.json \
+                                      --outfile=/data/app/conf/server.xml
+else
+    if [ ! -r "/data/app/conf/server.xml" ]; then
+        echo "file [/data/app/conf/server.xml] already exists, but it is not readable."
+        exit 1
+    else
+        echo "file [/data/app/conf/server.xml] already exists and is readable."
+    fi
+fi
+
+# generate web.xml
+if [ ! -f "/data/app/conf/web.xml" ]; then
+    echo "file [/data/app/conf/web.xml] does not exist, generate /data/app/conf/web.xml."
+    /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/web.tmpl \
+                                      --jsondata=f:/data/app/conf/wrapper-environment.json \
+                                      --outfile=/data/app/conf/web.xml
+else
+    if [ ! -r "/data/app/conf/web.xml" ]; then
+        echo "file [/data/app/conf/web.xml] already exists, but it is not readable."
+        exit 1
+    else
+        echo "file [/data/app/conf/web.xml] already exists and is readable."
+    fi
+fi
+
+echo "preprocess end."
