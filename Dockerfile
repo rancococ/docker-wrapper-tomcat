@@ -5,7 +5,7 @@ FROM registry.cn-hangzhou.aliyuncs.com/rancococ/oraclejre:1.8.0_192.6-alpine
 MAINTAINER "rancococ" <rancococ@qq.com>
 
 # set arg info
-ARG WRAPPER_TOMCAT_VERSION=3.5.41.5
+ARG WRAPPER_TOMCAT_VERSION=3.5.41.6
 ARG WRAPPER_TOMCAT_URL=https://github.com/rancococ/wrapper/archive/tomcat-${WRAPPER_TOMCAT_VERSION}.tar.gz
 
 # copy script
@@ -20,7 +20,6 @@ RUN mkdir -p /data/app && \
     \rm -rf /tmp/${tempuuid} && \
     \rm -rf /data/app/bin/*.bat && \
     \rm -rf /data/app/bin/*.exe && \
-    \rm -rf /data/app/conf/wrapper-environment.json && \
     \rm -rf /data/app/conf/wrapper-property.conf && \
     \rm -rf /data/app/conf/wrapper-additional.conf && \
     \rm -rf /data/app/conf/server.xml && \
