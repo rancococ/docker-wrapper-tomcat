@@ -72,7 +72,6 @@ fun_generate_wrapper_environment_file() {
         echo "        \"AppName\": \"${PROP_APP_NAME}\","                                             >> ${envfile_path}
         echo "        \"AppLongName\": \"${PROP_APP_LONG_NAME}\","                                    >> ${envfile_path}
         echo "        \"AppDesc\": \"${PROP_APP_DESC}\","                                             >> ${envfile_path}
-        echo "        \"AppLauncher\": \"${PROP_APP_LAUNCHER}\","                                     >> ${envfile_path}
         echo "        \"RunAsUser\": \"${PROP_RUN_AS_USER}\""                                         >> ${envfile_path}
         echo "    },"                                                                                 >> ${envfile_path}
         echo "    \"Jvm\": {"                                                                         >> ${envfile_path}
