@@ -272,5 +272,3 @@ fun_generate_tomcat_web_file
 echo "preprocess end."
 
 echo ""
-
-exit $?
