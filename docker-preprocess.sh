@@ -6,6 +6,9 @@ set -e
 fun_export_environment_variable() {
     echo "export environment variable :"
 
+    # env format
+    export ENV_FILE_FORMAT=${ENV_FILE_FORMAT:="yaml"}
+
     # prop
     export PROP_APP_NAME=${PROP_APP_NAME:="myapp"}
     export PROP_APP_LONG_NAME=${PROP_APP_LONG_NAME:="myapp"}
@@ -54,8 +57,111 @@ fun_export_environment_variable() {
     return 0
 }
 
-# generate wrapper-environment.json
+# generate wrapper-environment file
 fun_generate_wrapper_environment_file() {
+    if [ "${ENV_FILE_FORMAT}" == "yaml" ]; then
+        # generate wrapper-environment.yaml
+        fun_generate_wrapper_environment_yaml
+    elif [ "${ENV_FILE_FORMAT}" == "json" ];then
+        # generate wrapper-environment.json
+        fun_generate_wrapper_environment_json
+    else
+        echo "[ENV_FILE_FORMAT] only support yaml and json."
+        exit 1
+    fi
+    return 0
+}
+
+# generate wrapper-environment.yaml
+fun_generate_wrapper_environment_yaml() {
+    echo "generate wrapper-environment.yaml :"
+
+    set +e
+
+    # generate wrapper-environment.yaml
+    if [ ! -f "/data/app/conf/wrapper-environment.yaml" ]; then
+        echo "file [/data/app/conf/wrapper-environment.yaml] does not exist, generate /data/app/conf/wrapper-environment.yaml."
+
+        # environment file
+        envfile_path=/data/app/conf/wrapper-environment.yaml
+        touch ${envfile_path}
+        echo "'Prop':"                                                                                >> ${envfile_path}
+        echo "    'AppName': '${PROP_APP_NAME}'"                                                      >> ${envfile_path}
+        echo "    'AppLongName': '${PROP_APP_LONG_NAME}'"                                             >> ${envfile_path}
+        echo "    'AppDesc': '${PROP_APP_DESC}'"                                                      >> ${envfile_path}
+        echo "    'RunAsUser': '${PROP_RUN_AS_USER}'"                                                 >> ${envfile_path}
+        echo "'Jvm':"                                                                                 >> ${envfile_path}
+        echo "    'JmxExporter':"                                                                     >> ${envfile_path}
+        echo "        'Enabled': '${JVM_JMX_EXPORTER_ENABLED}'"                                       >> ${envfile_path}
+        echo "        'Port': '${JVM_JMX_EXPORTER_PORT}'"                                             >> ${envfile_path}
+        echo "    'HeapDumpEnabled': '${JVM_HEAP_DUMP_ENABLED}'"                                      >> ${envfile_path}
+        echo "    'PrintGcEnabled': '${JVM_PRINT_GC_ENABLED}'"                                        >> ${envfile_path}
+        echo "    'Xms': '${JVM_XMS}'"                                                                >> ${envfile_path}
+        echo "    'Xmx': '${JVM_XMX}'"                                                                >> ${envfile_path}
+        echo "    'Xss': '${JVM_XSS}'"                                                                >> ${envfile_path}
+        echo "    'MetaspaceSize': '${JVM_METASPACE_SIZE}'"                                           >> ${envfile_path}
+        echo "    'MaxMetaspaceSize': '${JVM_MAX_METASPACE_SIZE}'"                                    >> ${envfile_path}
+        echo "    'MaxDirectMemorySize': '${JVM_MAX_DIRECT_MEMORY_SIZE}'"                             >> ${envfile_path}
+        echo "    'RemoteDebug':"                                                                     >> ${envfile_path}
+        echo "        'Enabled': '${JVM_REMOTE_DEBUG_ENABLED}'"                                       >> ${envfile_path}
+        echo "        'Suspend': '${JVM_REMOTE_DEBUG_SUSPEND}'"                                       >> ${envfile_path}
+        echo "        'Port': '${JVM_REMOTE_DEBUG_PORT}'"                                             >> ${envfile_path}
+        echo "    'JmxRemote':"                                                                       >> ${envfile_path}
+        echo "        'Enabled': '${JVM_JMX_REMOTE_ENABLED}'"                                         >> ${envfile_path}
+        echo "        'Ssl': '${JVM_JMX_REMOTE_SSL}'"                                                 >> ${envfile_path}
+        echo "        'Auth': '${JVM_JMX_REMOTE_AUTH}'"                                               >> ${envfile_path}
+        echo "        'RmiServerHostname': '${JVM_JMX_REMOTE_RMI_SERVER_HOSTNAME}'"                   >> ${envfile_path}
+        echo "        'RmiRegistryPort': '${JVM_JMX_REMOTE_RMI_REGISTRY_PORT}'"                       >> ${envfile_path}
+        echo "        'RmiServerPort': '${JVM_JMX_REMOTE_RMI_SERVER_PORT}'"                           >> ${envfile_path}
+        echo "    'HttpListenPort': '${JVM_HTTP_LISTEN_PORT}'"                                        >> ${envfile_path}
+        echo "    'ShutdownPort': '${JVM_SHUTDOWN_PORT}'"                                             >> ${envfile_path}
+        echo "    'OtherParameters':"                                                                 >> ${envfile_path}
+        env | grep "JVM_OTHER_PARAMETERS_" | while read line
+        do
+        echo "        - '${line#*=}'"                                                                 >> ${envfile_path}
+        done
+        echo "        - ''"                                                                           >> ${envfile_path}
+        echo "'Tomcat':"                                                                              >> ${envfile_path}
+        echo "    'SetCharacterEncodingFilter':"                                                      >> ${envfile_path}
+        echo "        'Enabled': '${TOMCAT_SET_CHARACTER_ENCODING_FILTER_ENABLED}'"                   >> ${envfile_path}
+        echo "        'Encoding': '${TOMCAT_SET_CHARACTER_ENCODING_FILTER_ENCODING}'"                 >> ${envfile_path}
+        echo "        'AsyncSupported': '${TOMCAT_SET_CHARACTER_ENCODING_FILTER_ASYNC_SUPPORTED}'"    >> ${envfile_path}
+        echo "    'FailedRequestFilter':"                                                             >> ${envfile_path}
+        echo "        'Enabled': '${TOMCAT_FAILED_REQUEST_FILTER_ENABLED}'"                           >> ${envfile_path}
+        echo "        'AsyncSupported': '${TOMCAT_FAILED_REQUEST_FILTER_ASYNC_SUPPORTED}'"            >> ${envfile_path}
+        echo "    'CorsFilter':"                                                                      >> ${envfile_path}
+        echo "        'Enabled': '${TOMCAT_CORS_FILTER_ENABLED}'"                                     >> ${envfile_path}
+        echo "        'AllowedOrigins': '${TOMCAT_CORS_FILTER_ALLOWED_ORIGINS}'"                      >> ${envfile_path}
+        echo "        'AllowedMethods': '${TOMCAT_CORS_FILTER_ALLOWED_METHODS}'"                      >> ${envfile_path}
+        echo "        'AllowedHeaders': '${TOMCAT_CORS_FILTER_ALLOWED_HEADERS}'"                      >> ${envfile_path}
+        echo "        'ExposedHeaders': '${TOMCAT_CORS_FILTER_EXPOSED_HEADERS}'"                      >> ${envfile_path}
+        echo "        'SupportCredentials': '${TOMCAT_CORS_FILTER_SUPPORT_CREDENTIALS}'"              >> ${envfile_path}
+        echo "        'PreflightMaxage': '${TOMCAT_CORS_FILTER_PREFLIGHT_MAXAGE}'"                    >> ${envfile_path}
+        echo "        'AsyncSupported': '${TOMCAT_CORS_FILTER_ASYNC_SUPPORTED}'"                      >> ${envfile_path}
+
+        chown app:app /data/app/conf/wrapper-environment.yaml
+        chmod 644 /data/app/conf/wrapper-environment.yaml
+    else
+        if [ ! -r "/data/app/conf/wrapper-environment.yaml" ]; then
+            echo "file [/data/app/conf/wrapper-environment.yaml] already exists, but it is not readable."
+            exit 1
+        else
+            echo "file [/data/app/conf/wrapper-environment.yaml] already exists and is readable."
+        fi
+    fi
+
+    echo "show [/data/app/conf/wrapper-environment.yaml]"
+    cat /data/app/conf/wrapper-environment.yaml
+
+    set -e
+
+    echo "successfully generated wrapper-environment.yaml"
+
+    return 0
+}
+
+# generate wrapper-environment.json
+fun_generate_wrapper_environment_json() {
     echo "generate wrapper-environment.json :"
 
     set +e
@@ -144,9 +250,12 @@ fun_generate_wrapper_environment_file() {
         fi
     fi
 
-    echo "successfully generated wrapper-environment.json"
+    echo "show [/data/app/conf/wrapper-environment.json]"
+    cat /data/app/conf/wrapper-environment.json
 
     set -e
+
+    echo "successfully generated wrapper-environment.json"
 
     return 0
 }
@@ -158,9 +267,18 @@ fun_generate_wrapper_property_file() {
     # generate wrapper-property.conf
     if [ ! -f "/data/app/conf/wrapper-property.conf" ]; then
         echo "file [/data/app/conf/wrapper-property.conf] does not exist, generate /data/app/conf/wrapper-property.conf."
-        /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/wrapper-property.tmpl \
-                                          --jsondata=f:/data/app/conf/wrapper-environment.json \
-                                          --outfile=/data/app/conf/wrapper-property.conf
+        if [ "${ENV_FILE_FORMAT}" == "yaml" ]; then
+            /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/wrapper-property.tmpl \
+                                              --yamldata=f:/data/app/conf/wrapper-environment.yaml \
+                                              --outfile=/data/app/conf/wrapper-property.conf
+        elif [ "${ENV_FILE_FORMAT}" == "json" ];then
+            /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/wrapper-property.tmpl \
+                                              --jsondata=f:/data/app/conf/wrapper-environment.json \
+                                              --outfile=/data/app/conf/wrapper-property.conf
+        else
+            echo "[ENV_FILE_FORMAT] only support yaml and json."
+            exit 1
+        fi
         chown app:app /data/app/conf/wrapper-property.conf
         chmod 644 /data/app/conf/wrapper-property.conf
     else
@@ -171,6 +289,9 @@ fun_generate_wrapper_property_file() {
             echo "file [/data/app/conf/wrapper-property.conf] already exists and is readable."
         fi
     fi
+
+    echo "show [/data/app/conf/wrapper-property.conf]"
+    cat /data/app/conf/wrapper-property.conf
 
     echo "successfully generated wrapper-property.conf"
 
@@ -184,9 +305,18 @@ fun_generate_wrapper_additional_file() {
     # generate wrapper-additional.conf
     if [ ! -f "/data/app/conf/wrapper-additional.conf" ]; then
         echo "file [/data/app/conf/wrapper-additional.conf] does not exist, generate /data/app/conf/wrapper-additional.conf."
-        /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/wrapper-additional.tmpl \
-                                          --jsondata=f:/data/app/conf/wrapper-environment.json \
-                                          --outfile=/data/app/conf/wrapper-additional.conf
+        if [ "${ENV_FILE_FORMAT}" == "yaml" ]; then
+            /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/wrapper-additional.tmpl \
+                                              --yamldata=f:/data/app/conf/wrapper-environment.yaml \
+                                              --outfile=/data/app/conf/wrapper-additional.conf
+        elif [ "${ENV_FILE_FORMAT}" == "json" ];then
+            /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/wrapper-additional.tmpl \
+                                              --jsondata=f:/data/app/conf/wrapper-environment.json \
+                                              --outfile=/data/app/conf/wrapper-additional.conf
+        else
+            echo "[ENV_FILE_FORMAT] only support yaml and json."
+            exit 1
+        fi
         chown app:app /data/app/conf/wrapper-additional.conf
         chmod 644 /data/app/conf/wrapper-additional.conf
     else
@@ -197,6 +327,9 @@ fun_generate_wrapper_additional_file() {
             echo "file [/data/app/conf/wrapper-additional.conf] already exists and is readable."
         fi
     fi
+
+    echo "show [/data/app/conf/wrapper-additional.conf]"
+    cat /data/app/conf/wrapper-additional.conf
 
     echo "successfully generated wrapper-additional.conf"
 
@@ -210,9 +343,18 @@ fun_generate_tomcat_server_file() {
     # generate server.xml
     if [ ! -f "/data/app/conf/server.xml" ]; then
         echo "file [/data/app/conf/server.xml] does not exist, generate /data/app/conf/server.xml."
-        /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/server.tmpl \
-                                          --jsondata=f:/data/app/conf/wrapper-environment.json \
-                                          --outfile=/data/app/conf/server.xml
+        if [ "${ENV_FILE_FORMAT}" == "yaml" ]; then
+            /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/server.tmpl \
+                                              --yamldata=f:/data/app/conf/wrapper-environment.yaml \
+                                              --outfile=/data/app/conf/server.xml
+        elif [ "${ENV_FILE_FORMAT}" == "json" ];then
+            /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/server.tmpl \
+                                              --jsondata=f:/data/app/conf/wrapper-environment.json \
+                                              --outfile=/data/app/conf/server.xml
+        else
+            echo "[ENV_FILE_FORMAT] only support yaml and json."
+            exit 1
+        fi
         chown app:app /data/app/conf/server.xml
         chmod 644 /data/app/conf/server.xml
     else
@@ -223,6 +365,9 @@ fun_generate_tomcat_server_file() {
             echo "file [/data/app/conf/server.xml] already exists and is readable."
         fi
     fi
+
+    echo "show [/data/app/conf/server.xml]"
+    cat /data/app/conf/server.xml
 
     echo "successfully generated tomcat server.xml"
 
@@ -236,9 +381,18 @@ fun_generate_tomcat_web_file() {
     # generate web.xml
     if [ ! -f "/data/app/conf/web.xml" ]; then
         echo "file [/data/app/conf/web.xml] does not exist, generate /data/app/conf/web.xml."
-        /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/web.tmpl \
-                                          --jsondata=f:/data/app/conf/wrapper-environment.json \
-                                          --outfile=/data/app/conf/web.xml
+        if [ "${ENV_FILE_FORMAT}" == "yaml" ]; then
+            /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/web.tmpl \
+                                              --yamldata=f:/data/app/conf/wrapper-environment.yaml \
+                                              --outfile=/data/app/conf/web.xml
+        elif [ "${ENV_FILE_FORMAT}" == "json" ];then
+            /data/app/bin/gotmpl-linux-x86-64 --template=f:/data/app/conf/web.tmpl \
+                                              --jsondata=f:/data/app/conf/wrapper-environment.json \
+                                              --outfile=/data/app/conf/web.xml
+        else
+            echo "[ENV_FILE_FORMAT] only support yaml and json."
+            exit 1
+        fi
         chown app:app /data/app/conf/web.xml
         chmod 644 /data/app/conf/web.xml
     else
@@ -250,6 +404,9 @@ fun_generate_tomcat_web_file() {
         fi
     fi
 
+    echo "show [/data/app/conf/web.xml]"
+    cat /data/app/conf/web.xml
+
     echo "successfully generated tomcat web.xml"
 
     return 0
@@ -258,7 +415,7 @@ fun_generate_tomcat_web_file() {
 echo "preprocess start."
 # export environment variable
 fun_export_environment_variable
-# generate wrapper-environment.json
+# generate wrapper-environment file
 fun_generate_wrapper_environment_file
 # generate wrapper-property.conf
 fun_generate_wrapper_property_file
