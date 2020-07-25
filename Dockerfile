@@ -5,7 +5,7 @@ FROM registry.cn-hangzhou.aliyuncs.com/rancococ/oraclejre:1.8.0_192.5-alpine
 MAINTAINER "rancococ" <rancococ@qq.com>
 
 # set arg info
-ARG WRAPPER_TOMCAT_VERSION=3.5.41.1
+ARG WRAPPER_TOMCAT_VERSION=3.5.43.2
 ARG WRAPPER_TOMCAT_URL=https://github.com/rancococ/wrapper/archive/tomcat-${WRAPPER_TOMCAT_VERSION}.tar.gz
 
 # copy script
@@ -50,4 +50,4 @@ STOPSIGNAL SIGTERM
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # default command
-CMD ["/data/app/bin/wrapper-linux-x86-64", "/data/app/conf/wrapper.conf", "wrapper.syslog.ident=myapp", "wrapper.pidfile=/data/app/bin/myapp.pid", "wrapper.name=myapp", "wrapper.displayname=myapp", "wrapper.statusfile=/data/app/bin/myapp.status", "wrapper.java.statusfile=/data/app/bin/myapp.java.status", "wrapper.script.version=3.5.41"]
+CMD ["/data/app/bin/wrapper-linux-x86-64", "/data/app/conf/wrapper.conf", "wrapper.syslog.ident=myapp", "wrapper.pidfile=/data/app/bin/myapp.pid", "wrapper.name=myapp", "wrapper.displayname=myapp", "wrapper.statusfile=/data/app/bin/myapp.status", "wrapper.java.statusfile=/data/app/bin/myapp.java.status", "wrapper.script.version=3.5.43"]
