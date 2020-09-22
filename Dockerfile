@@ -5,8 +5,11 @@ FROM registry.cn-hangzhou.aliyuncs.com/rancococ/oraclejre:1.8.0_192.6-centos
 MAINTAINER "rancococ" <rancococ@qq.com>
 
 # set arg info
-ARG WRAPPER_TOMCAT_VERSION=3.5.43.4
-ARG WRAPPER_TOMCAT_URL=https://github.com/rancococ/wrapper/archive/tomcat-${WRAPPER_TOMCAT_VERSION}.tar.gz
+ARG version=3.5.43.4
+ARG jre_version=1.8.192
+ARG tomcat_version=8.5.57
+ARG wrapper_version=3.5.43.4
+ARG wrapper_url=https://github.com/rancococ/wrapper/archive/tomcat-${version}.tar.gz
 
 # copy script
 COPY docker-preprocess.sh /
@@ -14,7 +17,7 @@ COPY docker-preprocess.sh /
 # install wrapper-tomcat
 RUN mkdir -p /data/app && \
     tempuuid=$(cat /proc/sys/kernel/random/uuid) && mkdir -p /tmp/${tempuuid} && \
-    wget -c -O /tmp/${tempuuid}/wrapper.tar.gz --no-check-certificate ${WRAPPER_TOMCAT_URL} && \
+    wget -c -O /tmp/${tempuuid}/wrapper.tar.gz --no-check-certificate ${wrapper_url} && \
     tar -zxf /tmp/${tempuuid}/wrapper.tar.gz --directory=/data/app --strip-components=1 && \
     sed -i 's/^set.JAVA_HOME/#&/g' "/data/app/conf/wrapper.conf" && \
     \rm -rf /tmp/${tempuuid} && \
@@ -27,12 +30,19 @@ RUN mkdir -p /data/app && \
     \rm -rf /data/app/libcore/*.dll && \
     \rm -rf /data/app/libextend/*.dll && \
     \rm -rf /data/app/tool && \
+    find /data/app -type f -name ".gitignore" | xargs rm -rf && \
+    find /data/app -type f -name ".keep" | xargs rm -rf && \
     find /data/app | xargs touch && \
     find /data/app -type d -print | xargs chmod 755 && \
     find /data/app -type f -print | xargs chmod 644 && \
+    touch /data/app/bin/version && \
+    echo "jre:${jre_version}" >> /data/app/bin/version && \
+    echo "tomcat:${tomcat_version}" >> /data/app/bin/version && \
+    echo "wrapper:${wrapper_version}" >> /data/app/bin/version && \
     chmod 744 /data/app/bin/* && \
     chmod 644 /data/app/bin/*.jar && \
     chmod 644 /data/app/bin/*.cnf && \
+    chmod 644 /data/app/bin/version && \
     chmod 600 /data/app/conf/*.password && \
     chmod 777 /data/app/logs && \
     chmod 777 /data/app/temp && \
