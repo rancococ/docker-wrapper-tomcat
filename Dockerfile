@@ -5,7 +5,7 @@ FROM registry.cn-hangzhou.aliyuncs.com/rancococ/oraclejre:1.8.0_192.6-centos
 MAINTAINER "rancococ" <rancococ@qq.com>
 
 # set arg info
-ARG WRAPPER_TOMCAT_VERSION=3.5.43.3
+ARG WRAPPER_TOMCAT_VERSION=3.5.43.4
 ARG WRAPPER_TOMCAT_URL=https://github.com/rancococ/wrapper/archive/tomcat-${WRAPPER_TOMCAT_VERSION}.tar.gz
 
 # copy script
